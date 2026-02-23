@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
       issues: write # Needed to comment on the issue later (if desired)
     steps:
       - name: Checkout code
@@ -86,8 +87,16 @@ jobs:
           - **Keywords:** ${{ steps.issue-parser.outputs.issueparser_keywords }}
           EOF
 
-      - name: Commit and Push
-        uses: stefanzweifel/git-auto-commit-action@v5
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
         with:
-          commit_message: "feat: add submission card for ${{ env.SHORTNAME }}"
-          file_pattern: "docs/cards/*.md docs/assets/*"
+          commit-message: "feat: add submission card for ${{ env.SHORTNAME }}"
+          title: "Submission: ${{ env.SHORTNAME }}"
+          body: |
+            Automated PR to add the submission card for `${{ env.SHORTNAME }}`.
+
+            Closes #${{ github.event.issue.number }}
+          branch: "submission/${{ env.SHORTNAME }}"
+          add-paths: |
+            docs/cards/*.md
+            docs/assets/*
